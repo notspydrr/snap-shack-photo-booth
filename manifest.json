@@ -1,0 +1,24 @@
+{
+  "name": "Snap Shack Photo Booth",
+  "short_name": "Snap Shack",
+  "description": "A fun, modern browser-based photo booth with filters, effects, and instant captures.",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#d7263d",
+  "theme_color": "#d7263d",
+  "icons": [
+    {
+      "src": "icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}
