@@ -6,9 +6,9 @@ A fun, modern browser-based photo booth with filters, effects, and instant captu
 
 ## Quick Start
 
-1. Simply click on index html
-2. enjoy clicking pics!!
+1. Simply click on the link below
+2. enjoy our own photobooth!!
 
 The app will open in standalone mode (no browser bar).
 
-Repo: https://github.com/notspydrr/snap-shack-photo-booth
+Link for the photobooth:- https://notspydrr.github.io/snap-shack-photo-booth/?v=20261024-unmirror-2
