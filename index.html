@@ -562,9 +562,7 @@
         ctx.imageSmoothingEnabled = true;
         ctx.imageSmoothingQuality = 'high';
         ctx.filter = selectedFilter().css;
-        // Match the mirrored selfie preview in the saved snapshot.
-        ctx.translate(canvas.width, 0);
-        ctx.scale(-1, 1);
+        // Keep the live selfie preview mirrored, but save the camera's natural orientation.
         ctx.drawImage(ui.video, sx, sy, sw, sh, 0, 0, canvas.width, canvas.height);
         return canvas.toDataURL('image/jpeg', .97);
       }
