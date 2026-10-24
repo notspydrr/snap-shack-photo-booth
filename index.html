@@ -159,11 +159,13 @@
     .strip-preview[data-design="film"] { border-right: 4px dotted #ffffffa8; border-left: 4px dotted #ffffffa8; }
     .strip-preview[data-design="hearts"]::before { content: "♥  ♡  ♥"; }
     .strip-preview[data-design="stars"]::before { content: "✦  ✧  ✦"; }
+    .strip-preview[data-stickers="none"]::before { content: ""; }
     .strip-preview::before { position: absolute; right: 0; bottom: 4px; left: 0; color: #fff; content: "✦  ♥  ✦"; text-align: center; font-size: 6px; letter-spacing: 2px; }
     .preview-frame { position: relative; flex: 1; min-height: 0; overflow: hidden; border: 1.5px solid #ffffff; border-radius: 1px; background: linear-gradient(135deg, #deb5ba, #ffe9c0 55%, #b5c8ba); }
     .preview-frame:nth-child(even) { background: linear-gradient(135deg, #bca9d1, #f3d3cb 58%, #e9bd8f); }
     .preview-frame img { display: block; width: 100%; height: 100%; object-fit: cover; }
     .preview-sticker { position: absolute; top: 2px; right: 2px; display: grid; place-items: center; width: 12px; height: 12px; border-radius: 50%; color: #8b526a; background: #fffdf4; font-size: 8px; line-height: 1; box-shadow: 0 1px 3px #29213735; }
+    .preview-sticker-alt { top: auto; right: auto; bottom: 2px; left: 2px; }
     .preview-info { min-width: 0; }
     .preview-info strong { display: block; margin-bottom: 4px; font-size: 11px; font-weight: 900; letter-spacing: -.01em; }
     .preview-info p { margin: 0; color: var(--muted); font-size: 10px; line-height: 1.45; }
@@ -444,10 +446,12 @@
         const theme = THEMES[state.theme];
         ui.preview.style.setProperty('--strip-bg', theme.bg);
         ui.preview.dataset.design = state.stripStyle;
+        ui.preview.dataset.stickers = state.stickers;
         ui.preview.innerHTML = Array.from({ length: state.frames }, (_, i) => {
           const shot = state.shots[i];
-          const mark = state.stickers === 'none' ? '' : `<span class="preview-sticker">${STICKERS[state.stickers].marks[i % STICKERS[state.stickers].marks.length]}</span>`;
-          return `<span class="preview-frame">${shot ? `<img src="${shot.data}" alt="">` : ''}${mark}</span>`;
+          const marks = STICKERS[state.stickers].marks;
+          const stickers = state.stickers === 'none' ? '' : `<span class="preview-sticker">${marks[(i * 2) % marks.length]}</span><span class="preview-sticker preview-sticker-alt">${marks[(i * 2 + 1) % marks.length]}</span>`;
+          return `<span class="preview-frame">${shot ? `<img src="${shot.data}" alt="">` : ''}${stickers}</span>`;
         }).join('');
         ui.preview.dataset.frames = String(state.frames);
         ui.stripState.textContent = `${state.frames} frames · ${STICKERS[state.stickers].name} · ${STRIP_STYLES[state.stripStyle].name}`;
@@ -505,8 +509,10 @@
           const nextStream = await navigator.mediaDevices.getUserMedia({ video: videoConstraints, audio: false });
           const oldStream = state.stream;
           state.stream = nextStream;
-          state.facing = facing;
-          nextStream.getVideoTracks()[0]?.addEventListener('ended', () => {
+          const videoTrack = nextStream.getVideoTracks()[0];
+          const actualFacing = videoTrack?.getSettings().facingMode;
+          state.facing = actualFacing === 'environment' || actualFacing === 'user' ? actualFacing : facing;
+          videoTrack?.addEventListener('ended', () => {
             if (state.stream !== nextStream) return;
             ui.capture.disabled = true;
             ui.flip.disabled = true;
@@ -514,7 +520,7 @@
           }, { once: true });
           ui.video.srcObject = nextStream;
           ui.video.classList.add('is-on');
-          ui.video.classList.toggle('is-rear', facing === 'environment');
+          ui.video.classList.toggle('is-rear', state.facing === 'environment');
           ui.videoTint.classList.add('is-on');
           ui.empty.style.display = 'none';
           ui.start.innerHTML = '<svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M20 7v5h-5M4 17v-5h5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/><path d="M5.8 9A7 7 0 0 1 18 6l2 2M4 16l2 2a7 7 0 0 0 12.2-3" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg> Reconnect camera';
@@ -562,7 +568,11 @@
         ctx.imageSmoothingEnabled = true;
         ctx.imageSmoothingQuality = 'high';
         ctx.filter = selectedFilter().css;
-        // Keep the live selfie preview mirrored, but save the camera's natural orientation.
+        // Correct the reflected rear-camera feed in saved photos without changing the live preview.
+        if (state.facing === 'environment') {
+          ctx.translate(canvas.width, 0);
+          ctx.scale(-1, 1);
+        }
         ctx.drawImage(ui.video, sx, sy, sw, sh, 0, 0, canvas.width, canvas.height);
         return canvas.toDataURL('image/jpeg', .97);
       }
@@ -622,14 +632,33 @@
         ctx.drawImage(img, sx, sy, sw, sh, x, y, w, h);
       }
       function loadImage(data) { return new Promise((resolve, reject) => { const img = new Image(); img.onload = () => resolve(img); img.onerror = reject; img.src = data; }); }
-      function drawSticker(ctx, mark, centerX, centerY, size) {
+      function drawSticker(ctx, mark, centerX, centerY, size, variant = 0) {
         ctx.save();
-        ctx.shadowColor = '#2c233344'; ctx.shadowBlur = 5; ctx.shadowOffsetY = 2;
-        ctx.fillStyle = 'rgba(255,255,255,.96)';
-        ctx.beginPath(); ctx.arc(centerX, centerY, size / 2, 0, Math.PI * 2); ctx.fill();
+        ctx.translate(centerX, centerY);
+        ctx.rotate(((variant % 2 ? 1 : -1) * (3 + variant % 4)) * Math.PI / 180);
+        ctx.shadowColor = '#2c233355'; ctx.shadowBlur = 8; ctx.shadowOffsetY = 3;
+        ctx.beginPath();
+        if (variant % 3 === 0) {
+          ctx.arc(0, 0, size / 2, 0, Math.PI * 2);
+        } else if (variant % 3 === 1) {
+          for (let point = 0; point < 20; point++) {
+            const angle = (point / 20) * Math.PI * 2 - Math.PI / 2;
+            const radius = point % 2 === 0 ? size / 2 : size * .39;
+            const px = Math.cos(angle) * radius, py = Math.sin(angle) * radius;
+            if (point === 0) ctx.moveTo(px, py); else ctx.lineTo(px, py);
+          }
+          ctx.closePath();
+        } else {
+          roundedRect(ctx, -size * .46, -size * .43, size * .92, size * .86, size * .25);
+        }
+        ctx.fillStyle = ['#ffe4ed', '#fff1c9', '#dff2ff', '#e8f5dc', '#eee3ff'][variant % 5];
+        ctx.fill();
         ctx.shadowColor = 'transparent'; ctx.shadowBlur = 0; ctx.shadowOffsetY = 0;
-        ctx.fillStyle = '#684c5c'; ctx.font = `bold ${Math.round(size * .52)}px "Apple Color Emoji", "Segoe UI Emoji", system-ui, sans-serif`;
-        ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillText(mark, centerX, centerY + 1);
+        ctx.strokeStyle = '#ffffff'; ctx.lineWidth = Math.max(3, size * .08); ctx.stroke();
+        ctx.fillStyle = '#684c5c'; ctx.font = `bold ${Math.round(size * .48)}px "Apple Color Emoji", "Segoe UI Emoji", system-ui, sans-serif`;
+        ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillText(mark, 0, 1);
+        ctx.fillStyle = 'rgba(255,255,255,.9)';
+        ctx.beginPath(); ctx.arc(-size * .25, -size * .24, Math.max(2, size * .045), 0, Math.PI * 2); ctx.fill();
         ctx.restore();
       }
       async function createStrip(shots) {
@@ -651,12 +680,25 @@
         for (let i = 0; i < images.length; i++) {
           const x = pad; const y = top + i * (photoH + gap);
           ctx.save(); roundedRect(ctx, x, y, photoW, photoH, 7); ctx.clip(); drawCover(ctx, images[i], x, y, photoW, photoH); ctx.restore();
-          ctx.strokeStyle = '#ffffff'; ctx.lineWidth = 9; roundedRect(ctx, x, y, photoW, photoH, 12); ctx.stroke();
+          ctx.strokeStyle = theme.detail; ctx.lineWidth = 17; roundedRect(ctx, x, y, photoW, photoH, 16); ctx.stroke();
+          ctx.strokeStyle = '#ffffff'; ctx.lineWidth = 7; roundedRect(ctx, x, y, photoW, photoH, 12); ctx.stroke();
           if (state.stickers !== 'none') {
             const marks = STICKERS[state.stickers].marks;
-            drawSticker(ctx, marks[(i * 2) % marks.length], x + photoW - 48, y + 48, 64);
-            drawSticker(ctx, marks[(i * 2 + 1) % marks.length], x + 48, y + photoH - 46, 58);
+            const mark = (offset) => marks[(i * 4 + offset) % marks.length];
+            drawSticker(ctx, mark(0), x + photoW - 52, y + 52, 72, i * 4);
+            drawSticker(ctx, mark(1), x + 52, y + photoH - 50, 66, i * 4 + 1);
+            drawSticker(ctx, mark(2), x + 52, y + 52, 52, i * 4 + 2);
+            drawSticker(ctx, mark(3), x + photoW - 50, y + photoH - 50, 54, i * 4 + 3);
+            drawSticker(ctx, mark(4), pad / 2, y + photoH * .5, 44, i * 4 + 4);
+            drawSticker(ctx, mark(5), W - pad / 2, y + photoH * .5, 44, i * 4 + 5);
           }
+        }
+        if (state.stickers !== 'none') {
+          const marks = STICKERS[state.stickers].marks;
+          drawSticker(ctx, marks[0], 142, 58, 58, 1);
+          drawSticker(ctx, marks[1], W - 142, 58, 58, 2);
+          drawSticker(ctx, marks[2], 142, H - 87, 52, 3);
+          drawSticker(ctx, marks[3], W - 142, H - 87, 52, 4);
         }
         ctx.fillStyle = theme.ink; ctx.font = '700 25px system-ui, sans-serif'; ctx.textAlign = 'center';
         const decoration = state.stickers === 'none' ? 'made with love' : STICKERS[state.stickers].marks.join('  ');
