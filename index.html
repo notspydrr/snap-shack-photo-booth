@@ -141,6 +141,9 @@
     .choice-btn { flex: 1; min-width: 0; border: 1px solid #eee9e8; border-radius: 11px; padding: 8px 5px; color: #777180; background: white; text-align: center; font-size: 10px; font-weight: 800; cursor: pointer; transition: .14s; }
     .choice-btn[aria-pressed="true"] { border-color: #ed8fa8; color: #b44c68; background: #fff3f5; }
     .choice-btn .choice-icon { display: block; margin: 0 auto 3px; font-size: 15px; line-height: 1; }
+    .sticker-choices { display: grid; grid-template-columns: repeat(3, minmax(0,1fr)); gap: 7px; }
+    .sticker-choices .sticker-choice { display: flex; align-items: center; justify-content: center; gap: 4px; min-height: 40px; padding: 6px 4px; white-space: nowrap; }
+    .sticker-choices .choice-icon { display: inline; margin: 0; flex: 0 0 auto; }
     .theme-row { display: flex; gap: 7px; }
     .theme-btn { display: grid; place-items: center; flex: 1; min-width: 0; height: 39px; border: 1px solid transparent; border-radius: 12px; background: transparent; cursor: pointer; }
     .theme-btn[aria-pressed="true"] { border-color: #df9eb0; background: #fff4f6; }
@@ -150,9 +153,10 @@
     .strip-preview-wrap { display: flex; align-items: center; gap: 13px; min-height: 126px; border: 1px solid #f0e8e9; border-radius: 17px; padding: 12px 13px; background: linear-gradient(110deg, #fff8f5, #fbf8ff); }
     .strip-preview { position: relative; display: flex; flex: 0 0 auto; flex-direction: column; gap: 3px; width: 61px; height: 99px; border: 0; border-radius: 4px; padding: 7px 6px 11px; background: #ffca76; box-shadow: 0 4px 9px #28203318; transform: rotate(-3deg); transition: background .2s; }
     .strip-preview::before { position: absolute; right: 0; bottom: 4px; left: 0; color: #fff; content: "✦  ♥  ✦"; text-align: center; font-size: 6px; letter-spacing: 2px; }
-    .preview-frame { flex: 1; min-height: 0; overflow: hidden; border: 1.5px solid #ffffff; border-radius: 1px; background: linear-gradient(135deg, #deb5ba, #ffe9c0 55%, #b5c8ba); }
+    .preview-frame { position: relative; flex: 1; min-height: 0; overflow: hidden; border: 1.5px solid #ffffff; border-radius: 1px; background: linear-gradient(135deg, #deb5ba, #ffe9c0 55%, #b5c8ba); }
     .preview-frame:nth-child(even) { background: linear-gradient(135deg, #bca9d1, #f3d3cb 58%, #e9bd8f); }
     .preview-frame img { display: block; width: 100%; height: 100%; object-fit: cover; }
+    .preview-sticker { position: absolute; top: 2px; right: 2px; display: grid; place-items: center; width: 12px; height: 12px; border-radius: 50%; color: #8b526a; background: #fffdf4; font-size: 8px; line-height: 1; box-shadow: 0 1px 3px #29213735; }
     .preview-info { min-width: 0; }
     .preview-info strong { display: block; margin-bottom: 4px; font-size: 11px; font-weight: 900; letter-spacing: -.01em; }
     .preview-info p { margin: 0; color: var(--muted); font-size: 10px; line-height: 1.45; }
@@ -323,12 +327,7 @@
             </div>
           </div>
           <div class="section-head"><h3>Sticker style</h3><span>or keep it clean</span></div>
-          <div class="choice-row sticker-choices" role="group" aria-label="Sticker style">
-            <button class="choice-btn sticker-choice" data-stickers="none" aria-pressed="false"><span class="choice-icon">◯</span>None</button>
-            <button class="choice-btn sticker-choice" data-stickers="sweet" aria-pressed="true"><span class="choice-icon">💗</span>Sweet</button>
-            <button class="choice-btn sticker-choice" data-stickers="doodle" aria-pressed="false"><span class="choice-icon">✦</span>Doodle</button>
-            <button class="choice-btn sticker-choice" data-stickers="party" aria-pressed="false"><span class="choice-icon">🎉</span>Party</button>
-          </div>
+          <div class="sticker-choices" role="group" aria-label="Sticker style"></div>
           <div class="preview-block">
             <div class="section-head"><h3>Your strip</h3><span id="stripState">3 frames · Sweet</span></div>
             <div class="strip-preview-wrap">
@@ -386,21 +385,28 @@
         cream: { name: 'Vanilla', bg: '#f3dfc7', ink: '#715d52', detail: '#fff8ea' }
       };
       const STICKERS = {
-        none: { name: 'None', line: 'clean, classic, all you', marks: [] },
-        sweet: { name: 'Sweet', line: '♡ a little extra love ♡', marks: ['♡', '✦', '♥', '✦'] },
-        doodle: { name: 'Doodle', line: 'tiny stars & happy squiggles', marks: ['✳', '✦', '☼', '✧'] },
-        party: { name: 'Party', line: 'confetti, please!', marks: ['✦', '★', '✦', '✷'] }
+        none: { name: 'None', icon: '◯', line: 'clean, classic, all you', marks: [] },
+        sweet: { name: 'Sweet', icon: '💗', line: '♡ a little extra love ♡', marks: ['♡', '✦', '♥', '✧', '♡', '✦'] },
+        doodle: { name: 'Doodle', icon: '✦', line: 'tiny stars & happy squiggles', marks: ['✳', '✦', '☼', '✧', '✽', '✳'] },
+        party: { name: 'Party', icon: '🎉', line: 'confetti, please!', marks: ['✦', '★', '✦', '✷', '✶', '★'] },
+        floral: { name: 'Floral', icon: '🌼', line: 'little blooms all around', marks: ['✿', '❀', '❁', '✾', '✿', '❋'] },
+        bows: { name: 'Bows', icon: '🎀', line: 'cute bows & pretty details', marks: ['🎀', '♡', '🎀', '✦', '🎀', '♡'] },
+        celestial: { name: 'Celestial', icon: '☾', line: 'moonlight, stars & wishes', marks: ['☾', '✦', '✧', '☼', '✩', '☾'] },
+        cherry: { name: 'Cherry', icon: '🍒', line: 'sweet fruit stand stickers', marks: ['🍒', '🍓', '🍊', '🍋', '🍒', '🍓'] },
+        kawaii: { name: 'Kawaii', icon: '☺', line: 'happy faces & tiny hearts', marks: ['☺', '♡', '✿', '★', '☻', '♡'] },
+        retro: { name: 'Retro', icon: '✹', line: 'a groovy little throwback', marks: ['✹', '★', '✦', '✷', '✺', '✦'] }
       };
       const $ = (sel) => document.querySelector(sel);
       const $$ = (sel) => [...document.querySelectorAll(sel)];
       const ui = {
-        video: $('#video'), viewfinder: $('#viewfinder'), videoTint: $('#videoTint'), empty: $('#emptyCamera'), emptyTitle: $('#emptyTitle'), emptyCopy: $('#emptyCopy'), start: $('#startCamera'), state: $('#cameraState'), stateText: $('#cameraStateText'), message: $('#cameraMessage'), capture: $('#captureButton'), captureLabel: $('#captureLabel'), flip: $('#flipCamera'), overlay: $('#countdownOverlay'), number: $('#countdownNumber'), progress: $('#shotProgress'), filterGrid: $('#filterGrid'), themeRow: $('.theme-row'), preview: $('#stripPreview'), stripState: $('#stripState'), stickerLine: $('#stickerLine'), download: $('#downloadStrip'), retake: $('#retakeButton'), galleryEmpty: $('#galleryEmpty'), galleryList: $('#galleryList'), galleryCount: $('#galleryCount'), toast: $('#toast'), toastText: $('#toastText'), modal: $('#modal'), modalImage: $('#modalImage'), modalTitle: $('#modalTitle'), modalTime: $('#modalTime'), downloadSingle: $('#downloadSingle')
+        video: $('#video'), viewfinder: $('#viewfinder'), videoTint: $('#videoTint'), empty: $('#emptyCamera'), emptyTitle: $('#emptyTitle'), emptyCopy: $('#emptyCopy'), start: $('#startCamera'), state: $('#cameraState'), stateText: $('#cameraStateText'), message: $('#cameraMessage'), capture: $('#captureButton'), captureLabel: $('#captureLabel'), flip: $('#flipCamera'), overlay: $('#countdownOverlay'), number: $('#countdownNumber'), progress: $('#shotProgress'), filterGrid: $('#filterGrid'), themeRow: $('.theme-row'), stickerChoices: $('.sticker-choices'), preview: $('#stripPreview'), stripState: $('#stripState'), stickerLine: $('#stickerLine'), download: $('#downloadStrip'), retake: $('#retakeButton'), galleryEmpty: $('#galleryEmpty'), galleryList: $('#galleryList'), galleryCount: $('#galleryCount'), toast: $('#toast'), toastText: $('#toastText'), modal: $('#modal'), modalImage: $('#modalImage'), modalTitle: $('#modalTitle'), modalTime: $('#modalTime'), downloadSingle: $('#downloadSingle')
       };
       const state = { stream: null, filter: 'natural', frames: 3, theme: 'bubblegum', stickers: 'sweet', timer: 3, shots: [], galleryCount: 0, stripData: null, renderId: 0, capturing: false, facing: 'user', mobile: matchMedia('(pointer: coarse)').matches || /Android|iPhone|iPad|iPod/i.test(navigator.userAgent), toastTimer: null };
 
       function renderOptions() {
         ui.filterGrid.innerHTML = FILTERS.map((f) => `<button class="filter-btn" data-filter="${f.id}" aria-pressed="${f.id === state.filter}" aria-label="${f.name} filter"><span class="filter-swatch" style="background:${f.swatch};filter:${f.css}"></span><span>${f.name}</span></button>`).join('');
         ui.themeRow.innerHTML = Object.entries(THEMES).map(([id, theme]) => `<button class="theme-btn" data-theme="${id}" aria-pressed="${id === state.theme}" aria-label="${theme.name} strip color" title="${theme.name}"><span class="theme-dot" style="background:${theme.bg}"></span></button>`).join('');
+        ui.stickerChoices.innerHTML = Object.entries(STICKERS).map(([id, style]) => `<button class="choice-btn sticker-choice" data-stickers="${id}" aria-pressed="${id === state.stickers}" aria-label="${style.name} sticker style"><span class="choice-icon" aria-hidden="true">${style.icon}</span>${style.name}</button>`).join('');
         updateStripPreview();
       }
       function selectedFilter() { return FILTERS.find((f) => f.id === state.filter) || FILTERS[0]; }
@@ -413,7 +419,8 @@
         ui.preview.style.background = theme.bg;
         ui.preview.innerHTML = Array.from({ length: state.frames }, (_, i) => {
           const shot = state.shots[i];
-          return `<span class="preview-frame">${shot ? `<img src="${shot.data}" alt="">` : ''}</span>`;
+          const mark = state.stickers === 'none' ? '' : `<span class="preview-sticker">${STICKERS[state.stickers].marks[i % STICKERS[state.stickers].marks.length]}</span>`;
+          return `<span class="preview-frame">${shot ? `<img src="${shot.data}" alt="">` : ''}${mark}</span>`;
         }).join('');
         ui.preview.style.paddingTop = state.frames === 4 ? '6px' : '7px';
         ui.stripState.textContent = `${state.frames} frames · ${STICKERS[state.stickers].name}`;
@@ -544,6 +551,16 @@
         ctx.drawImage(img, sx, sy, sw, sh, x, y, w, h);
       }
       function loadImage(data) { return new Promise((resolve, reject) => { const img = new Image(); img.onload = () => resolve(img); img.onerror = reject; img.src = data; }); }
+      function drawSticker(ctx, mark, centerX, centerY, size) {
+        ctx.save();
+        ctx.shadowColor = '#2c233344'; ctx.shadowBlur = 5; ctx.shadowOffsetY = 2;
+        ctx.fillStyle = 'rgba(255,255,255,.96)';
+        ctx.beginPath(); ctx.arc(centerX, centerY, size / 2, 0, Math.PI * 2); ctx.fill();
+        ctx.shadowColor = 'transparent'; ctx.shadowBlur = 0; ctx.shadowOffsetY = 0;
+        ctx.fillStyle = '#684c5c'; ctx.font = `bold ${Math.round(size * .52)}px "Apple Color Emoji", "Segoe UI Emoji", system-ui, sans-serif`;
+        ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillText(mark, centerX, centerY + 1);
+        ctx.restore();
+      }
       async function createStrip(shots) {
         const W = 620, pad = 29, photoW = W - pad * 2, photoH = Math.round(photoW * .69), gap = 18, top = 108, foot = 104;
         const H = top + shots.length * photoH + (shots.length - 1) * gap + foot;
@@ -568,12 +585,9 @@
           ctx.save(); roundedRect(ctx, x, y, photoW, photoH, 7); ctx.clip(); drawCover(ctx, images[i], x, y, photoW, photoH); ctx.restore();
           ctx.strokeStyle = '#ffffff'; ctx.lineWidth = 6; roundedRect(ctx, x, y, photoW, photoH, 7); ctx.stroke();
           if (state.stickers !== 'none') {
-            const mark = STICKERS[state.stickers].marks[i % STICKERS[state.stickers].marks.length];
-            ctx.save(); ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.font = 'bold 37px system-ui, sans-serif';
-            ctx.shadowColor = '#3b294455'; ctx.shadowBlur = 5; ctx.fillStyle = '#fff';
-            ctx.fillText(mark, x + photoW - 30, y + 32);
-            if (i === 0 || i === images.length - 1) ctx.fillText(STICKERS[state.stickers].marks[(i + 1) % STICKERS[state.stickers].marks.length], x + 28, y + photoH - 27);
-            ctx.restore();
+            const marks = STICKERS[state.stickers].marks;
+            drawSticker(ctx, marks[(i * 2) % marks.length], x + photoW - 32, y + 32, 48);
+            drawSticker(ctx, marks[(i * 2 + 1) % marks.length], x + 32, y + photoH - 30, 42);
           }
         }
         ctx.fillStyle = theme.ink; ctx.font = '700 14px system-ui, sans-serif'; ctx.textAlign = 'center';
