@@ -1,39 +1,26 @@
-# Snap Shack Photo Booth
+# Snap Shack Photo Booth (PWA)
 
 A fun, modern browser-based photo booth with filters, effects, and instant captures.
 
-Now available as a **Progressive Web App (PWA)**.
+**Now a Progressive Web App.**
 
-## Features
-- Live camera preview with mirror option
-- Multiple photo filters and effects
-- Countdown timer and shutter sound
-- Single shots and photo strips
-- Instant download and share
-- Fully responsive — works great on mobile
-- Installable on Android & iOS (Add to Home Screen)
+## Quick Start
 
-## How to use
+1. Download the latest ZIP from this repository (or the original one + the new files).
+2. Extract it.
+3. Open `index.html` in Chrome or Safari.
+4. Allow camera access.
+5. On mobile: use **Add to Home Screen** / **Install app** to install it like a native app.
 
-### Online / Local
-1. Open `index.html` in a modern browser (Chrome, Safari, Firefox, Edge).
-2. Allow camera access when prompted.
-3. Choose a filter, strike a pose, and snap!
+## PWA Files Added
+- `manifest.json` — app identity & installability
+- `sw.js` — offline caching
+- Updated `index.html` with PWA meta tags and service worker registration
 
-### Install as App (PWA)
-- **Android (Chrome)**: Open the page → menu → “Install app” or “Add to Home screen”
-- **iOS (Safari)**: Share button → “Add to Home Screen”
+## Install on Phone
+- **Android**: Chrome menu → Install app / Add to Home screen
+- **iOS**: Safari Share → Add to Home Screen
 
-## Files
-- `index.html` — main page
-- `style.css` — styles
-- `app.js` — application logic
-- `manifest.json` — PWA manifest
-- `sw.js` — service worker (offline caching)
-- `icon-192.png` / `icon-512.png` — app icons
+The app will open in standalone mode (no browser bar).
 
-## GitHub
-https://github.com/notspydrr/snap-shack-photo-booth
-
----
-Made for quick, stylish photo booth moments.
+Repo: https://github.com/notspydrr/snap-shack-photo-booth
