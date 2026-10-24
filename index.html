@@ -1,0 +1,668 @@
+Warning: truncated output (original token count: 15426)
+Total output lines: 726
+
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#fff8f3">
+  <meta name="description" content="A little photo booth for big memories. Pick a filter, grab a friend, and make your own photo strip.">
+  <meta property="og:title" content="Flash Friend — your little photo booth">
+  <meta property="og:description" content="Pick a look, grab a friend, and make your own photo strip.">
+  <meta property="og:type" content="website">
+  <title>Flash Friend — your little photo booth</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --ink: #252235;
+      --muted: #807b8d;
+      --pink: #f76b91;
+      --pink-dark: #dd4f79;
+      --paper: #fff8f3;
+      --white: #fffefd;
+      --line: #eee8e3;
+      --lilac: #eee8ff;
+      --shadow: 0 20px 60px rgba(70, 45, 61, .08);
+      --radius: 26px;
+    }
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      overflow-x: hidden;
+      min-height: 100vh;
+      color: var(--ink);
+      background:
+        radial-gradient(ellipse at 12% 4%, rgba(255, 211, 222, .45), transparent 27rem),
+        radial-gradient(ellipse at 90% 18%, rgba(222, 212, 255, .42), transparent 24rem),
+        var(--paper);
+      font-family: ui-rounded, "SF Pro Rounded", "Segoe UI", system-ui, -apple-system, sans-serif;
+      -webkit-font-smoothing: antialiased;
+    }
+    button { font: inherit; -webkit-tap-highlight-color: transparent; touch-action: manipulation; }
+    button:focus-visible, a:focus-visible { outline: 3px solid #7454d8; outline-offset: 3px; }
+    .page { width: min(1220px, calc(100% - 48px)); margin: auto; padding-top: env(safe-area-inset-top); padding-bottom: calc(48px + env(safe-area-inset-bottom)); }
+    .topbar { display: flex; align-items: center; justify-content: space-between; padding: 24px 0 20px; }
+    .brand { display: inline-flex; gap: 10px; align-items: center; color: var(--ink); text-decoration: none; font-size: 16px; font-weight: 850; letter-spacing: -.04em; }
+    .brand-mark { position: relative; display: grid; place-items: center; width: 36px; height: 36px; border-radius: 13px; color: white; background: var(--pink); box-shadow: 0 6px 15px #f76b9145; transform: rotate(-5deg); }
+    .brand-mark svg { width: 21px; height: 21px; }
+    .brand .friend { color: var(--pink-dark); }
+    .top-note { display: flex; align-items: center; gap: 8px; color: #716a7b; font-size: 12px; font-weight: 650; }
+    .top-note svg { color: #80aa88; }
+    .hero { display: flex; align-items: end; justify-content: space-between; gap: 20px; padding: 19px 0 23px; }
+    .eyebrow { display: flex; align-items: center; gap: 8px; margin: 0 0 9px; color: var(--pink-dark); font-size: 11px; font-weight: 850; letter-spacing: .14em; text-transform: uppercase; }
+    .eyebrow .spark { font-size: 15px; letter-spacing: 0; }
+    h1 { margin: 0; font-size: clamp(34px, 5vw, 53px); line-height: 1.02; letter-spacing: -.065em; font-weight: 900; }
+    .hero-copy { max-width: 540px; margin: 12px 0 0; color: var(--muted); font-size: 15px; line-height: 1.55; }
+    .share-note { flex: 0 0 auto; display: flex; align-items: center; gap: 9px; border: 1px solid #f0e5e7; border-radius: 16px; padding: 10px 13px; color: #766d79; background: rgba(255,255,255,.75); font-size: 11px; line-height: 1.4; }
+    button.share-note { font-family: inherit; text-align: left; cursor: pointer; transition: border-color .15s, transform .15s; }
+    button.share-note:hover { border-color: #e9bdcc; transform: translateY(-1px); }
+    .share-note .link-icon { display: grid; place-items: center; width: 31px; height: 31px; border-radius: 11px; color: #df597e; background: #fff0f3; }
+    .share-note strong { display: block; color: var(--ink); font-size: 12px; }
+    .studio-grid { display: grid; grid-template-columns: minmax(0, 1.36fr) minmax(330px, .86fr); gap: 18px; align-items: stretch; }
+    .card { border: 1px solid rgba(237, 229, 228, .9); border-radius: var(--radius); background: rgba(255, 254, 253, .94); box-shadow: var(--shadow); }
+    .camera-card { padding: 16px; overflow: hidden; }
+    .camera-top { display: flex; justify-content: space-between; align-items: center; gap: 12px; padding: 0 3px 14px; }
+    .camera-label { display: flex; align-items: center; gap: 9px; font-size: 13px; font-weight: 800; letter-spacing: -.02em; }
+    .camera-label .mini-icon { display: grid; place-items: center; width: 30px; height: 30px; color: #d65d7a; border-radius: 10px; background: #fff0f2; }
+    .camera-state { display: inline-flex; align-items: center; gap: 7px; border-radius: 999px; padding: 7px 10px; color: #787282; background: #f5f3f3; font-size: 10px; font-weight: 800; white-space: nowrap; }
+    .state-dot { width: 7px; height: 7px; border-radius: 50%; background: #c5c1c9; }
+    .camera-state[data-state="live"] { color: #487c5a; background: #edf7ef; }
+    .camera-state[data-state="live"] .state-dot { background: #62b978; box-shadow: 0 0 0 3px #62b97825; }
+    .camera-state[data-state="busy"] { color: #a96e22; background: #fff6df; }
+    .camera-state[data-state="busy"] .state-dot { background: #e8aa41; animation: pulse 1s infinite; }
+    .camera-state[data-state="error"] { color: #a14455; background: #fff0f1; }
+    .camera-state[data-state="error"] .state-dot { background: #df6678; }
+    .viewfinder { position: relative; display: grid; place-items: center; width: 100%; aspect-ratio: 1.45; min-height: 250px; max-height: 475px; overflow: hidden; border-radius: 19px; isolation: isolate; background: #272636; }
+    .viewfinder::before, .viewfinder::after { position: absolute; z-index: 1; content: ""; width: 24px; height: 24px; border-color: #ffffff75; pointer-events: none; }
+    .viewfinder::before { top: 14px; left: 14px; border-top: 1px solid; border-left: 1px solid; border-radius: 7px 0 0; }
+    .viewfinder::after { right: 14px; bottom: 14px; border-right: 1px solid; border-bottom: 1px solid; border-radius: 0 0 7px; }
+    #video { position: absolute; display: none; width: 100%; height: 100%; object-fit: cover; transform: scaleX(-1); background: #272636; }
+    #video.is-on { display: block; }
+    #video.is-rear { transform: none; }
+    .viewfinder.wide #video { object-fit: cover; }
+    .video-tint { position: absolute; z-index: 1; inset: 0; display: none; background: linear-gradient(180deg, rgba(26,22,39,.22), transparent 22%, transparent 74%, rgba(26,22,39,.28)); pointer-events: none; }
+    .video-tint.is-on { display: block; }
+    .viewfinder-badge { position: absolute; z-index: 2; top: 14px; left: 14px; display: inline-flex; align-items: center; gap: 6px; padding: 7px 9px; border: 1px solid #ffffff25; border-radius: 99px; color: white; background: #1e1d2c77; backdrop-filter: blur(8px); font-size: 9px; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; }
+    .viewfinder-badge svg { width: 12px; height: 12px; }
+    .viewfinder-corner { position: absolute; z-index: 2; right: 14px; top: 14px; display: grid; place-items: center; width: 31px; height: 31px; border: 1px solid #ffffff30; border-radius: 10px; color: white; background: #1e1d2c77; backdrop-filter: blur(8px); }
+    .viewfinder-corner svg { width: 16px; height: 16px; }
+    .empty-camera { position: relative; z-index: 1; display: flex; flex-direction: column; align-items: center; text-align: center; padding: 22px; color: #fff; }
+    .camera-illustration { display: grid; place-items: center; width: 74px; height: 74px; margin-bottom: 13px; border: 1px solid #ffffff20; border-radius: 27px; color: #ffd9e2; background: #ffffff12; transform: rotate(-5deg); }
+    .camera-illustration svg { width: 37px; height: 37px; }
+    .empty-camera h2 { margin: 0; font-size: 17px; letter-spacing: -.03em; }
+    .empty-camera p { max-width: 340px; margin: 7px 0 15px; color: #d0cbd9; font-size: 12px; line-height: 1.5; }
+    .primary-btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; min-height: 43px; border: 0; border-radius: 13px; padding: 0 16px; color: white; background: var(--pink); box-shadow: 0 7px 16px #f76b9145; font-size: 12px; font-weight: 850; cursor: pointer; transition: transform .15s, background .15s, box-shadow .15s; }
+    .primary-btn:hover { background: #ed5b83; box-shadow: 0 9px 20px #f76b9155; transform: translateY(-1px); }
+    .primary-btn:active { transform: translateY(1px); }
+    .primary-btn svg { width: 16px; height: 16px; }
+    .countdown-overlay { position: absolute; z-index: 4; inset: 0; display: grid; place-items: center; color: white; background: #16142135; backdrop-filter: blur(2px); opacity: 0; pointer-events: none; transition: opacity .12s; }
+    .countdown-overlay.is-visible { opacity: 1; }
+    .countdown-number { display: grid; place-items: center; width: clamp(96px, 18vw, 150px); aspect-ratio: 1; border: 3px solid #ffffffb8; border-radius: 50%; background: #f76b91d9; box-shadow: 0 14px 40px #17132150; font-size: clamp(50px, 10vw, 82px); font-weight: 900; letter-spacing: -.08em; animation: count-pop .6s cubic-bezier(.2,.8,.3,1) both; }
+    .shot-progress { position: absolute; z-index: 3; right: 14px; bottom: 13px; display: none; border-radius: 99px; padding: 7px 10px; color: white; background: #1e1d2c9c; backdrop-filter: blur(6px); font-size: 10px; font-weight: 800; }
+    .shot-progress.is-visible { display: block; }
+    @keyframes count-pop { from { transform: scale(.72); opacity: .4; } to { transform: scale(1); opacity: 1; } }
+    @keyframes pulse { 50% { opacity: .4; } }
+    .camera-message { display: none; margin: 11px 2px 0; border-radius: 12px; padding: 10px 12px; color: #8d4354; background: #fff1f2; font-size: 11px; line-height: 1.5; }
+    .camera-message.is-visible { display: block; }
+    .camera-controls { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 15px 3px 0; }
+    .timer-label { color: var(--muted); font-size: 10px; font-weight: 800; letter-spacing: .04em; text-transform: uppercase; }
+    .timer-control { display: flex; align-items: center; gap: 5px; }
+    .timer-chip { min-width: 47px; height: 34px; border: 1px solid var(--line); border-radius: 11px; padding: 0 9px; color: #797384; background: white; font-size: 11px; font-weight: 800; cursor: pointer; transition: .15s; }
+    .timer-chip[aria-pressed="true"] { border-color: #f39ab0; color: #bf4667; background: #fff1f4; }
+    .timer-chip:disabled, .filter-btn:disabled, .choice-btn:disabled, .theme-btn:disabled { opacity: .55; cursor: wait; }
+    .shutter-wrap { display: flex; align-items: center; gap: 11px; }
+    .shutter-btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; min-height: 44px; border: 0; border-radius: 14px; padding: 0 17px; color: white; background: var(--ink); box-shadow: 0 6px 16px #25223524; font-size: 12px; font-weight: 850; cursor: pointer; transition: .15s; }
+    .shutter-btn:hover:not(:disabled) { background: #3c3751; transform: translateY(-1px); }
+    .shutter-btn:disabled { opacity: .48; cursor: not-allowed; }
+    .shutter-btn svg { width: 17px; height: 17px; }
+    .flip-btn { display: grid; place-items: center; width: 43px; height: 43px; border: 1px solid var(--line); border-radius: 14px; color: #555064; background: white; cursor: pointer; transition: .15s; }
+    .flip-btn:hover:not(:disabled) { border-color: #e5bfd0; color: var(--pink-dark); background: #fff7f8; }
+    .flip-btn:disabled { opacity: .42; cursor: not-allowed; }
+    .flip-btn svg { width: 18px; height: 18px; }
+    .capture-hint { display: flex; align-items: center; justify-content: center; gap: 5px; margin: 12px 0 0; color: #9892a0; font-size: 10px; }
+    .capture-hint svg { width: 13px; height: 13px; }
+    .edit-card { display: flex; flex-direction: column; padding: 21px; }
+    .edit-heading { display: flex; align-items: start; justify-content: space-between; gap: 10px; padding-bottom: 13px; border-bottom: 1px solid #f1eded; }
+    .edit-heading h2 { margin: 0; font-size: 17px; font-weight: 900; letter-spacing: -.04em; }
+    .edit-heading p { margin: 5px 0 0; color: var(--muted); font-size: 11px; line-height: 1.4; }
+    .step-pill { display: inline-flex; align-items: center; gap: 5px; padding: 6px 8px; border-radius: 99px; color: #8b69c6; background: #f2edff; font-size: 9px; font-weight: 850; white-space: nowrap; }
+    .section-head { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin: 14px 0 9px; }
+    .section-head h3 { margin: 0; color: #494457; font-size: 11px; font-weight: 850; letter-spacing: .02em; }
+    .section-head span { color: #a09aa8; font-size: 9px; font-weight: 700; }
+    .filter-grid { display: grid; grid-template-columns: repeat(4, minmax(0,1fr)); gap: 7px; }
+    .filter-btn { min-width: 0; border: 1px solid #eee9e8; border-radius: 12px; padding: 5px; color: #655f70; background: white; text-align: center; cursor: pointer; transition: border-color .14s, background .14s, transform .14s; }
+    .filter-btn:hover { border-color: #edb8c6; transform: translateY(-1px); }
+    .filter-btn[aria-pressed="true"] { border-color: #ed8fa8; background: #fff5f7; box-shadow: 0 0 0 2px #fce4e9; }
+    .filter-swatch { display: block; width: 100%; aspect-ratio: 1.65; margin-bottom: 5px; overflow: hidden; border-radius: 8px; background: linear-gradient(135deg, #ffc6d7, #ffc96d 46%, #83a1c9); }
+    .filter-swatch::after { display: block; width: 35%; height: 100%; margin-left: 30%; content: ""; background: linear-gradient(130deg, rgba(255,255,255,.55), rgba(255,255,255,0) 60%); }
+    .filter-btn span:last-child { display: block; overflow: hidden; color: inherit; font-size: 9px; font-weight: 800; text-overflow: ellipsis; white-space: nowrap; }
+    .custom-grid { display: grid; grid-template-columns: 1fr 1.22fr; gap: 14px; margin-top: 2px; }
+    .option-group { min-width: 0; }
+    .choice-row { display: flex; gap: 6px; }
+    .choice-btn { flex: 1; min-width: 0; border: 1px solid #eee9e8; border-radius: 11px; padding: 8px 5px; color: #777180; background: white; text-align: center; font-size: 10px; font-weight: 800; cursor: pointer; transition: .14s; }
+    .choice-btn[aria-pressed="true"] { border-color: #ed8fa8; color: #b44c68; background: #fff3f5; }
+    .choice-btn .choice-icon { display: block; margin: 0 auto 3px; font-size: 15px; line-height: 1; }
+    .theme-row { display: flex; gap: 7px; }
+    .theme-btn { display: grid; place-items: center; flex: 1; min-width: 0; height: 39px; border: 1px solid transparent; border-radius: 12px; background: transparent; cursor: pointer; }
+    .theme-btn[aria-pressed="true"] { border-color: #df9eb0; background: #fff4f6; }
+    .theme-dot { width: 22px; height: 22px; border: 2px solid #ffffff; border-radius: 50%; box-shadow: 0 0 0 1px #ded9df; }
+    .theme-btn[aria-pressed="true"] .theme-dot { box-shadow: 0 0 0 2px #df7592; }
+    .preview-block { margin-top: auto; padding-top: 17px; }
+    .strip-preview-wrap { display: flex; align-items: center; gap: 13px; min-height: 126px; border: 1px solid #f0e8e9; border-radius: 17px; padding: 12px 13px; background: linear-gradient(110deg, #fff8f5, #fbf8ff); }
+    .strip-preview { position: relative; display: flex; flex: 0 0 auto; flex-direction: column; gap: 3px; width: 61px; height: 99px; border: 0; border-radius: 4px; padding: 7px 6px 11px; background: #ffca76; box-shadow: 0 4px 9px #28203318; transform: rotate(-3deg); transition: background .2s; }
+    .strip-preview::before { position: absolute; right: 0; bottom: 4px; left: 0; color: #fff; content: "✦  ♥  ✦"; text-align: center; font-size: 6px; letter-spacing: 2px; }
+    .preview-frame { flex: 1; min-height: 0; overflow: hidden; border: 1.5px solid #ffffff; border-radius: 1px; background: linear-gradient(135deg, #deb5ba, #ffe9c0 55%, #b5c8ba); }
+    .preview-frame:nth-child(even) { background: linear-gradient(135deg, #bca9d1, #f3d3cb 58%, #e9bd8f); }
+    .preview-frame img { display: block; width: 100%; height: 100%; object-fit: cover; }
+    .preview-info { min-width: 0; }
+    .preview-info strong { display: block; margin-bottom: 4px; font-size: 11px; font-weight: 900; letter-spacing: -.01em; }
+    .preview-info p { margin: 0; color: var(--muted); font-size: 10px; line-height: 1.45; }
+    .preview-info .sticker-line { margin-top: 6px; color: #bd6683; font-size: 10px; font-weight: 750; }
+    .result-actions { display: flex; gap: 7px; margin-top: 11px; }
+    .download-btn, .retake-btn { display: inline-flex; justify-content: center; align-items: center; gap: 7px; min-height: 39px; border: 1px solid #ece7e7; border-radius: 12px; padding: 0 11px; font-size: 10px; font-weight: 850; cursor: pointer; transition: .15s; }
+    .download-btn { flex: 1; border-color: var(--pink); color: white; background: var(--pink); }
+    .download-btn:hover:not(:disabled) { background: #e95b82; }
+    .download-btn:disabled { border-color: #f1e9ea; color: #aaa3ad; background: #f7f4f4; cursor: not-allowed; }
+    .retake-btn { color: #675f70; background: white; }
+    .retake-btn:hover:not(:disabled) { border-color: #dac6e9; color: #74569e; background: #faf7ff; }
+    .retake-btn:disabled { color: #b5b0b8; cursor: not-allowed; }
+    .download-btn svg, .retake-btn svg { width: 15px; height: 15px; }
+    .gallery-card { margin-top: 18px; padding: 17px 19px 16px; }
+    .gallery-top { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-bottom: 12px; }
+    .gallery-heading { display: flex; align-items: center; gap: 8px; }
+    .gallery-heading svg { width: 17px; height: 17px; color: #a278ce; }
+    .gallery-heading h2 { margin: 0; font-size: 13px; font-weight: 900; letter-spacing: -.02em; }
+    .gallery-count { color: #9993a0; font-size: 10px; font-weight: 750; }
+    .gallery-empty { display: flex; align-items: center; justify-content: center; gap: 8px; min-height: 66px; border: 1px dashed #eadfe2; border-radius: 14px; color: #9993a0; background: #fffcfb; font-size: 11px; }
+    .gallery-empty .empty-heart { font-size: 16px; color: #e792a6; }
+    .gallery-list { display: flex; gap: 9px; overflow-x: auto; padding: 2px 1px 4px; scrollbar-width: thin; }
+    .gallery-item { position: relative; flex: 0 0 89px; width: 89px; height: 72px; overflow: hidden; border: 2px solid white; border-radius: 11px; padding: 0; background: #eee8f1; box-shadow: 0 2px 8px #29213716; cursor: pointer; }
+    .gallery-item img { display: block; width: 100%; height: 100%; object-fit: cover; }
+    .gallery-item:hover { border-color: #ef9caf; }
+    .gallery-item .gallery-index { position: absolute; right: 4px; bottom: 4px; border-radius: 99px; padding: 3px 5px; color: white; background: #282337ad; font-size: 8px; font-weight: 800; }
+    .gallery-tip { margin: 8px 0 0; color: #a29ba8; font-size: 9px; }
+    .footer { display: flex; justify-content: space-between; gap: 15px; padding: 19px 3px 0; color: #a19aa5; font-size: 10px; }
+    .footer a { color: #9b708b; text-decoration: none; }
+    .toast { position: fixed; z-index: 20; right: 20px; bottom: max(20px, env(safe-area-inset-bottom)); display: flex; align-items: center; gap: 9px; max-width: min(380px, calc(100% - 40px)); border: 1px solid #ffffff22; border-radius: 14px; padding: 12px 15px; color: white; background: #282538; box-shadow: 0 12px 30px #18151d35; font-size: 12px; font-weight: 700; opacity: 0; transform: translateY(10px); pointer-events: none; transition: .2s; }
+    .toast.is-visible { opacity: 1; transform: translateY(0); }
+    .toast svg { width: 16px; height: 16px; color: #a9e3ae; flex: 0 0 auto; }
+    .modal-backdrop { position: fixed; z-index: 30; inset: 0; display: none; place-items: center; padding: 20px; background: #1b18245e; backdrop-filter: blur(5px); }
+    .modal-backdrop.is-visible { display: grid; }
+    .shot-modal { position: relative; width: min(400px, 100%); border: 1px solid #fff; border-radius: 24px; padding: 16px; background: var(--white); box-shadow: 0 20px 70px #1a152a3b; }
+    .modal-close { position: absolute; z-index: 1; top: 25px; right: 25px; display: grid; place-items: center; width: 34px; height: 34px; border: 0; border-radius: 50%; color: white; background: #232031a8; cursor: pointer; }
+    .modal-close svg { width: 17px; height: 17px; }
+    .modal-image { display: block; width: 100%; max-height: 65vh; border-radius: 14px; object-fit: contain; background: #292638; }
+    .modal-caption { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin: 12px 2px 0; }
+    .modal-caption strong { font-size: 12px; }
+    .modal-caption span { color: #8f8898; font-size: 10px; }
+    .sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0,0,0,0); white-space: nowrap; border: 0; }
+
+    @media (max-width: 870px) {
+      .studio-grid { grid-template-columns: minmax(0, 1.12fr) minmax(300px, .88fr); gap: 13px; }
+      .edit-card { padding: 17px; }
+      .filter-grid { grid-template-columns: repeat(3, minmax(0,1fr)); }
+      .viewfinder { min-height: 235px; }
+    }
+    @media (max-width: 720px) {
+      .page { width: min(580px, calc(100% - 30px)); padding-bottom: calc(28px + env(safe-area-inset-bottom)); }
+      .topbar { padding-top: 17px; }
+      .top-note { font-size: 10px; }
+      .hero { display: block; padding: 12px 0 16px; }
+      h1 { font-size: clamp(31px, 8.5vw, 42px); line-height: 1.04; }
+      .hero-copy { max-width: 450px; font-size: 13px; }
+      .share-note { display: none; }
+      .studio-grid { grid-template-columns: 1fr; gap: 13px; }
+      .camera-card { padding: 12px; border-radius: 22px; }
+      .viewfinder { aspect-ratio: 1.12; min-height: 255px; max-height: none; border-radius: 16px; }
+      .camera-controls { gap: 8px; padding-top: 12px; }
+      .timer-label { display: none; }
+      .timer-control { gap: 4px; }
+      .timer-chip { min-width: 40px; height: 36px; padding: 0 7px; font-size: 10px; }
+      .shutter-wrap { gap: 7px; }
+      .shutter-btn { min-height: 42px; padding: 0 12px; font-size: 11px; }
+      .flip-btn { width: 42px; height: 42px; }
+      .capture-hint { font-size: 9px; }
+      .edit-card { padding: 17px; border-radius: 22px; }
+      .filter-grid { grid-template-columns: repeat(4, minmax(0,1fr)); }
+      .filter-swatch { aspect-ratio: 1.8; }
+      .gallery-card { margin-top: 13px; padding: 15px; border-radius: 21px; }
+      .footer { flex-direction: column; gap: 5px; }
+    }
+    @media (max-width: 390px) {
+      .page { width: calc(100% - 22px); }
+      .top-note { display: none; }
+      .camera-controls { flex-wrap: wrap; justify-content: center; }
+      .timer-control { margin-right: auto; }
+      .shutter-btn { padding: 0 10px; }
+      .filter-btn span:last-child { font-size: 8px; }
+      .custom-grid { grid-template-columns: 1fr; gap: 4px; }
+      .option-group .section-head { margin-top: 12px; }
+      .strip-preview-wrap { min-height: 112px; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after { scroll-behavior: auto !important; animation-duration: .01ms !important; animation-iteration-count: 1 !important; transition-duration: .01ms !important; }
+    }
+  </style>
+</head>
+<body>
+  <div class="page">
+    <header class="topbar">
+      <a class="brand" href="#top" aria-label="Flash Friend home">
+        <span class="brand-mark" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none"><path d="M8 6.5 9.2 4.8h5.6L16 6.5h2.2A2.8 2.8 0 0 1 21 9.3v7a2.8 2.8 0 0 1-2.8 2.8H5.8A2.8 2.8 0 0 1 3 16.3v-7a2.8 2.8 0 0 1 2.8-2.8H8Z" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/><circle cx="12" cy="12.8" r="3.4" stroke="currentColor" stroke-width="1.7"/><path d="M17.7 9.2h.1" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/></svg></span>
+        <span>flash<span class="friend">friend</span></span>
+      </a>
+      <div class="top-note"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M12 21s-8-4.4-8-11a4.5 4.5 0 0 1 8-2.8A4.5 4.5 0 0 1 20 10c0 6.6-8 11-8 11Z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/></svg> Just you, your camera &amp; good vibes</div>
+    </header>
+
+    <main id="top">
+      <section class="hero" aria-labelledby="page-title">
+        <div>
+          <p class="eyebrow"><span class="spark">✦</span> YOUR POCKET-SIZED PHOTO BOOTH</p>
+          <h1 id="page-title">Make a little magic.</h1>
+          <p class="hero-copy">Grab your favorite people, pick a look, and make a photo strip worth keeping. Ready when you are.</p>
+        </div>
+        <button class="share-note" id="shareBooth" aria-label="Share this photo booth">
+          <span class="link-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M10 13.5a4.9 4.9 0 0 0 7.3.5l2-2a4.9 4.9 0 0 0-6.9-6.9l-1.1 1.1M14 10.5a4.9 4.9 0 0 0-7.3-.5l-2 2a4.9 4.9 0 0 0 6.9 6.9l1.1-1.1" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg></span>
+          <span><strong>Made for sharing</strong>Camera stays in your browser</span>
+        </button>
+      </section>
+
+      <section class="studio-grid" aria-label="Photo booth studio">
+        <section class="camera-card card" aria-labelledby="camera-heading">
+          <div class="camera-top">
+            <div class="camera-label" id="camera-heading"><span class="mini-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M8 6.5 9.2 4.8h5.6L16 6.5h2.2A2.8 2.8 0 0 1 21 9.3v7a2.8 2.8 0 0 1-2.8 2.8H5.8A2.8 2.8 0 0 1 3 16.3v-7a2.8 2.8 0 0 1 2.8-2.8H8Z" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/><circle cx="12" cy="12.8" r="3.4" stroke="currentColor" stroke-width="1.7"/></svg></span> Your camera</div>
+            <span class="camera-state" id="cameraState" data-state="off" role="status"><span class="state-dot"></span><span id="cameraStateText">Camera off</span></span>
+          </div>
+          <div class="viewfinder" id="viewfinder">
+            <video id="video" autoplay playsinline muted aria-label="Live camera preview"></video>
+            <div class="video-tint" id="videoTint"></div>
+            <span class="viewfinder-badge"><svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><circle cx="12" cy="12" r="8.5" stroke="currentColor" stroke-width="1.8"/><circle cx="12" cy="12" r="3.1" fill="currentColor"/></svg> Live preview</span>
+            <span class="viewfinder-corner" title="Selfie mirrored"><svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M12 3v18M5 7l3-3 3 3M13 17l3 3 3-3" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+            <div class="empty-camera" id="emptyCamera">
+              <div class="camera-illustration" aria-hidden="true"><svg viewBox="0 0 48 48" fill="none"><path d="M15 13.5 17.8 9h12.4l2.8 4.5h4.8a4.2 4.2 0 0 1 4.2 4.2v16.1a4.2 4.2 0 0 1-4.2 4.2H10.2A4.2 4.2 0 0 1 6 33.8V17.7a4.2 4.2 0 0 1 4.2-4.2H15Z" stroke="currentColor" stroke-width="2.3" stroke-linejoin="round"/><circle cx="24" cy="25.5" r="7.2" stroke="currentColor" stroke-width="2.3"/><path d="M34.3 18.6h.1" stroke="currentColor" stroke-width="3.2" stroke-linecap="round"/></svg></div>
+              <h2 id="emptyTitle">Your moment is waiting</h2>
+              <p id="emptyCopy">Allow camera access to see your live preview. Nothing is recorded or uploaded.</p>
+              <button class="primary-btn" id="startCamera"><svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M8 6.5 9.2 4.8h5.6L16 6.5h2.2A2.8 2.8 0 0 1 21 9.3v7a2.8 2.8 0 0 1-2.8 2.8H5.8A2.8 2.8 0 0 1 3 16.3v-7a2.8 2.8 0 0 1 2.8-2.8H8Z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/><circle cx="12" cy="12.8" r="3.4" stroke="currentColor" stroke-width="1.8"/></svg> Turn on camera</button>
+            </div>
+            <div class="countdown-overlay" id="countdownOverlay" aria-live="assertive"><div c…1426 tokens truncated…ry-top">
+          <div class="gallery-heading"><svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M4 7.5A2.5 2.5 0 0 1 6.5 5h11A2.5 2.5 0 0 1 20 7.5v10a2.5 2.5 0 0 1-2.5 2.5h-11A2.5 2.5 0 0 1 4 17.5v-10Z" stroke="currentColor" stroke-width="1.8"/><path d="m4 15 4.5-4.5 4 4L15 12l5 5M8.5 8.5h.01" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg><h2 id="gallery-heading">The good times</h2><span class="gallery-count" id="galleryCount">0 shots</span></div>
+          <span class="gallery-count">This session</span>
+        </div>
+        <div class="gallery-empty" id="galleryEmpty"><span class="empty-heart">♡</span> Your recent snapshots will land here.</div>
+        <div class="gallery-list" id="galleryList" aria-label="Recent snapshots" hidden></div>
+        <p class="gallery-tip">Tap any snapshot to see it bigger or save it on its own.</p>
+      </section>
+    </main>
+    <footer class="footer"><span>Made with a little sparkle and a lot of love.</span><span>Camera access works on a secure page (HTTPS) or <a href="https://developer.mozilla.org/en-US/docs/Web/API/MediaDevices/getUserMedia#privacy_and_security">localhost</a>.</span></footer>
+  </div>
+
+  <div class="toast" id="toast" role="status" aria-live="polite"><svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="m5 12 4 4L19 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg><span id="toastText"></span></div>
+  <div class="modal-backdrop" id="modal" role="dialog" aria-modal="true" aria-label="Snapshot preview">
+    <div class="shot-modal"><button class="modal-close" id="modalClose" aria-label="Close snapshot"><svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="m6 6 12 12M18 6 6 18" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></button><img class="modal-image" id="modalImage" alt="Your snapshot"><div class="modal-caption"><strong id="modalTitle">A little moment</strong><span id="modalTime"></span></div><div class="result-actions"><a class="download-btn" id="downloadSingle" download="flash-friend-photo.jpg" style="text-decoration:none"><svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M12 3v12m0 0 4-4m-4 4-4-4M5 17v2a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-2" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg> Download snapshot</a></div></div>
+  </div>
+
+  <script>
+    (() => {
+      const FILTERS = [
+        { id: 'natural', name: 'Natural', css: 'none', swatch: 'linear-gradient(135deg,#ffc5d4,#ffc978 48%,#89aab6)' },
+        { id: 'soft', name: 'Soft glow', css: 'brightness(1.08) saturate(.82) contrast(.95)', swatch: 'linear-gradient(135deg,#ffe1e8,#ffdfb1 48%,#d9c6e8)' },
+        { id: 'rose', name: 'Rosy', css: 'sepia(.12) saturate(1.24) hue-rotate(326deg) brightness(1.05)', swatch: 'linear-gradient(135deg,#f393a7,#f3b283 50%,#d7a1bb)' },
+        { id: 'warm', name: 'Golden', css: 'sepia(.25) saturate(1.2) hue-rotate(348deg) brightness(1.06)', swatch: 'linear-gradient(135deg,#f8b883,#ffdc89 48%,#cb9e76)' },
+        { id: 'cool', name: 'Cool blue', css: 'saturate(.88) hue-rotate(13deg) brightness(1.04)', swatch: 'linear-gradient(135deg,#c0d7ed,#9eb8e2 48%,#99c6cd)' },
+        { id: 'film', name: 'Film', css: 'sepia(.2) saturate(.84) contrast(1.08) brightness(.99)', swatch: 'linear-gradient(135deg,#c8a8a0,#dac48e 48%,#82978b)' },
+        { id: 'mono', name: 'B&W', css: 'grayscale(1) contrast(1.08)', swatch: 'linear-gradient(135deg,#eeebed,#b2aeb8 48%,#676574)' },
+        { id: 'lavender', name: 'Lilac', css: 'saturate(.88) hue-rotate(28deg) brightness(1.04)', swatch: 'linear-gradient(135deg,#cbaee2,#e8becb 48%,#a6a9d0)' },
+        { id: 'mint', name: 'Minty', css: 'saturate(.9) hue-rotate(42deg) brightness(1.07)', swatch: 'linear-gradient(135deg,#b1dbc3,#f1d19c 48%,#80b8ad)' },
+        { id: 'pop', name: 'Pop!', css: 'saturate(1.55) contrast(1.08)', swatch: 'linear-gradient(135deg,#ff6f91,#ffc052 48%,#70c6ac)' },
+        { id: 'dream', name: 'Daydream', css: 'brightness(1.12) saturate(.76) sepia(.08)', swatch: 'linear-gradient(135deg,#f5c9df,#d7c8f6 48%,#bdddd4)' },
+        { id: 'noir', name: 'Noir', css: 'grayscale(1) contrast(1.3) brightness(.82)', swatch: 'linear-gradient(135deg,#aaa5aa,#77747e 48%,#383745)' }
+      ];
+      const THEMES = {
+        bubblegum: { name: 'Bubblegum', bg: '#f58eae', ink: '#fffafd', detail: '#ffe6ee' },
+        lilac: { name: 'Lilac', bg: '#ad91e5', ink: '#fffaff', detail: '#eee4ff' },
+        lemon: { name: 'Lemon', bg: '#f2c05f', ink: '#594521', detail: '#fff0bd' },
+        mint: { name: 'Mint', bg: '#8bc9aa', ink: '#fffefa', detail: '#e0f6e8' },
+        midnight: { name: 'Midnight', bg: '#47475f', ink: '#fffaff', detail: '#aaa7d6' },
+        cream: { name: 'Vanilla', bg: '#f3dfc7', ink: '#715d52', detail: '#fff8ea' }
+      };
+      const STICKERS = {
+        none: { name: 'None', line: 'clean, classic, all you', marks: [] },
+        sweet: { name: 'Sweet', line: '♡ a little extra love ♡', marks: ['♡', '✦', '♥', '✦'] },
+        doodle: { name: 'Doodle', line: 'tiny stars & happy squiggles', marks: ['✳', '✦', '☼', '✧'] },
+        party: { name: 'Party', line: 'confetti, please!', marks: ['✦', '★', '✦', '✷'] }
+      };
+      const $ = (sel) => document.querySelector(sel);
+      const $$ = (sel) => [...document.querySelectorAll(sel)];
+      const ui = {
+        video: $('#video'), viewfinder: $('#viewfinder'), videoTint: $('#videoTint'), empty: $('#emptyCamera'), emptyTitle: $('#emptyTitle'), emptyCopy: $('#emptyCopy'), start: $('#startCamera'), state: $('#cameraState'), stateText: $('#cameraStateText'), message: $('#cameraMessage'), capture: $('#captureButton'), captureLabel: $('#captureLabel'), flip: $('#flipCamera'), overlay: $('#countdownOverlay'), number: $('#countdownNumber'), progress: $('#shotProgress'), filterGrid: $('#filterGrid'), themeRow: $('.theme-row'), preview: $('#stripPreview'), stripState: $('#stripState'), stickerLine: $('#stickerLine'), download: $('#downloadStrip'), retake: $('#retakeButton'), galleryEmpty: $('#galleryEmpty'), galleryList: $('#galleryList'), galleryCount: $('#galleryCount'), toast: $('#toast'), toastText: $('#toastText'), modal: $('#modal'), modalImage: $('#modalImage'), modalTitle: $('#modalTitle'), modalTime: $('#modalTime'), downloadSingle: $('#downloadSingle')
+      };
+      const state = { stream: null, filter: 'natural', frames: 3, theme: 'bubblegum', stickers: 'sweet', timer: 3, shots: [], galleryCount: 0, stripData: null, renderId: 0, capturing: false, facing: 'user', mobile: matchMedia('(pointer: coarse)').matches || /Android|iPhone|iPad|iPod/i.test(navigator.userAgent), toastTimer: null };
+
+      function renderOptions() {
+        ui.filterGrid.innerHTML = FILTERS.map((f) => `<button class="filter-btn" data-filter="${f.id}" aria-pressed="${f.id === state.filter}" aria-label="${f.name} filter"><span class="filter-swatch" style="background:${f.swatch};filter:${f.css}"></span><span>${f.name}</span></button>`).join('');
+        ui.themeRow.innerHTML = Object.entries(THEMES).map(([id, theme]) => `<button class="theme-btn" data-theme="${id}" aria-pressed="${id === state.theme}" aria-label="${theme.name} strip color" title="${theme.name}"><span class="theme-dot" style="background:${theme.bg}"></span></button>`).join('');
+        updateStripPreview();
+      }
+      function selectedFilter() { return FILTERS.find((f) => f.id === state.filter) || FILTERS[0]; }
+      function updateFilter() {
+        ui.video.style.filter = selectedFilter().css;
+        $$('.filter-btn').forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.filter === state.filter)));
+      }
+      function updateStripPreview() {
+        const theme = THEMES[state.theme];
+        ui.preview.style.background = theme.bg;
+        ui.preview.innerHTML = Array.from({ length: state.frames }, (_, i) => {
+          const shot = state.shots[i];
+          return `<span class="preview-frame">${shot ? `<img src="${shot.data}" alt="">` : ''}</span>`;
+        }).join('');
+        ui.preview.style.paddingTop = state.frames === 4 ? '6px' : '7px';
+        ui.stripState.textContent = `${state.frames} frames · ${STICKERS[state.stickers].name}`;
+        ui.stickerLine.textContent = STICKERS[state.stickers].line;
+        $$('.theme-btn').forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.theme === state.theme)));
+        $$('.frame-choice').forEach((b) => b.setAttribute('aria-pressed', String(Number(b.dataset.frames) === state.frames)));
+        $$('.sticker-choice').forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.stickers === state.stickers)));
+      }
+      function setCameraState(kind, label) {
+        ui.state.dataset.state = kind;
+        ui.stateText.textContent = label;
+      }
+      function cameraErrorMessage(error) {
+        if (!window.isSecureContext || !navigator.mediaDevices?.getUserMedia) {
+          return { title: 'This page needs a secure connection', body: 'Browsers only share camera access on HTTPS websites or localhost. Open this page from an HTTPS link (or a localhost server), then tap Try again.' };
+        }
+        const name = error?.name || '';
+        if (name === 'NotAllowedError' || name === 'PermissionDeniedError' || name === 'SecurityError') return { title: 'Camera permission is off', body: 'Allow camera access in your browser’s site settings, then come back and tap Try again. Your browser may also have a camera privacy switch.' };
+        if (name === 'NotFoundError' || name === 'DevicesNotFoundError') return { title: 'No camera found', body: 'We could not find a camera on this device. Connect one and try again.' };
+        if (name === 'NotReadableError' || name === 'TrackStartError' || name === 'AbortError') return { title: 'Camera is busy', body: 'Another app or browser tab may be using the camera. Close it and try again.' };
+        return { title: 'Could not start the camera', body: 'Check your camera connection and browser permissions, then give it another try.' };
+      }
+      function setCameraError(error) {
+        const info = cameraErrorMessage(error);
+        setCameraState('error', 'Camera unavailable');
+        ui.video.classList.remove('is-on');
+        ui.videoTint.classList.remove('is-on');
+        ui.empty.style.display = 'flex';
+        ui.emptyTitle.textContent = info.title;
+        ui.emptyCopy.textContent = info.body;
+        ui.start.innerHTML = '<svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M20 7v5h-5M4 17v-5h5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/><path d="M5.8 9A7 7 0 0 1 18 6l2 2M4 16l2 2a7 7 0 0 0 12.2-3" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg> Try again';
+        ui.message.classList.remove('is-visible');
+      }
+      async function refreshFlipAvailability() {
+        let count = 0;
+        try { count = (await navigator.mediaDevices.enumerateDevices()).filter((d) => d.kind === 'videoinput').length; } catch (_) {}
+        ui.flip.disabled = !state.stream || count < 2;
+        ui.flip.title = ui.flip.disabled ? 'No second camera found' : 'Flip camera';
+        return count;
+      }
+      async function requestCamera(facing = state.facing, deviceId = null) {
+        if (!navigator.mediaDevices?.getUserMedia) {
+          setCameraError({ name: 'UnsupportedError' });
+          return false;
+        }
+        ui.start.disabled = true;
+        ui.start.textContent = 'Finding your camera…';
+        setCameraState('busy', 'Connecting');
+        ui.message.classList.remove('is-visible');
+        try {
+          const videoConstraints = { width: { ideal: 1280 }, height: { ideal: 960 }, frameRate: { ideal: 30, max: 30 } };
+          if (deviceId) videoConstraints.deviceId = { exact: deviceId };
+          else videoConstraints.facingMode = { ideal: facing };
+          const nextStream = await navigator.mediaDevices.getUserMedia({ video: videoConstraints, audio: false });
+          const oldStream = state.stream;
+          state.stream = nextStream;
+          state.facing = facing;
+          nextStream.getVideoTracks()[0]?.addEventListener('ended', () => {
+            if (state.stream !== nextStream) return;
+            ui.capture.disabled = true;
+            ui.flip.disabled = true;
+            setCameraError({ name: 'NotReadableError' });
+          }, { once: true });
+          ui.video.srcObject = nextStream;
+          ui.video.classList.add('is-on');
+          ui.video.classList.toggle('is-rear', facing === 'environment');
+          ui.videoTint.classList.add('is-on');
+          ui.empty.style.display = 'none';
+          ui.start.innerHTML = '<svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M20 7v5h-5M4 17v-5h5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/><path d="M5.8 9A7 7 0 0 1 18 6l2 2M4 16l2 2a7 7 0 0 0 12.2-3" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg> Reconnect camera';
+          ui.start.disabled = false;
+          ui.capture.disabled = false;
+          setCameraState('live', 'Camera ready');
+          if (oldStream && oldStream !== nextStream) oldStream.getTracks().forEach((t) => t.stop());
+          await refreshFlipAvailability();
+          updateFilter();
+          await ui.video.play().catch(() => {});
+          return true;
+        } catch (error) {
+          ui.start.disabled = false;
+          ui.start.innerHTML = '<svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M20 7v5h-5M4 17v-5h5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/><path d="M5.8 9A7 7 0 0 1 18 6l2 2M4 16l2 2a7 7 0 0 0 12.2-3" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg> Try again';
+          if (state.stream) {
+            showToast('Could not switch cameras. Your current camera is still on.');
+            setCameraState('live', 'Camera ready');
+            ui.empty.style.display = 'none';
+            ui.video.classList.add('is-on');
+            ui.videoTint.classList.add('is-on');
+            return false;
+          }
+          setCameraError(error);
+          return false;
+        }
+      }
+      function wait(ms) { return new Promise((resolve) => setTimeout(resolve, ms)); }
+      function captureFrame() {
+        const vw = ui.video.videoWidth;
+        const vh = ui.video.videoHeight;
+        if (!vw || !vh) return null;
+        const canvas = document.createElement('canvas');
+        canvas.width = 1280;
+        canvas.height = Math.round(canvas.width * (vh / vw));
+        const ctx = canvas.getContext('2d');
+        ctx.filter = selectedFilter().css;
+        // Match the mirrored selfie preview in the saved snapshot.
+        ctx.translate(canvas.width, 0);
+        ctx.scale(-1, 1);
+        ctx.drawImage(ui.video, 0, 0, canvas.width, canvas.height);
+        return canvas.toDataURL('image/jpeg', .93);
+      }
+      async function runCountdown() {
+        for (let seconds = state.timer; seconds > 0; seconds--) {
+          ui.number.textContent = String(seconds);
+          ui.number.style.animation = 'none';
+          void ui.number.offsetWidth;
+          ui.number.style.animation = '';
+          ui.overlay.classList.add('is-visible');
+          await wait(1000);
+        }
+        ui.overlay.classList.remove('is-visible');
+      }
+      function roundedRect(ctx, x, y, w, h, r) {
+        const rr = Math.min(r, w / 2, h / 2);
+        ctx.beginPath(); ctx.moveTo(x + rr, y); ctx.arcTo(x + w, y, x + w, y + h, rr); ctx.arcTo(x + w, y + h, x, y + h, rr); ctx.arcTo(x, y + h, x, y, rr); ctx.arcTo(x, y, x + w, y, rr); ctx.closePath();
+      }
+      function drawCover(ctx, img, x, y, w, h) {
+        const scale = Math.max(w / img.width, h / img.height);
+        const sw = w / scale; const sh = h / scale;
+        const sx = (img.width - sw) / 2; const sy = (img.height - sh) / 2;
+        ctx.drawImage(img, sx, sy, sw, sh, x, y, w, h);
+      }
+      function loadImage(data) { return new Promise((resolve, reject) => { const img = new Image(); img.onload = () => resolve(img); img.onerror = reject; img.src = data; }); }
+      async function createStrip(shots) {
+        const W = 620, pad = 29, photoW = W - pad * 2, photoH = Math.round(photoW * .69), gap = 18, top = 108, foot = 104;
+        const H = top + shots.length * photoH + (shots.length - 1) * gap + foot;
+        const canvas = document.createElement('canvas'); canvas.width = W; canvas.height = H;
+        const ctx = canvas.getContext('2d');
+        const theme = THEMES[state.theme];
+        ctx.fillStyle = theme.bg; ctx.fillRect(0, 0, W, H);
+        ctx.fillStyle = theme.detail; ctx.globalAlpha = .62;
+        for (let i = 0; i < 11; i++) {
+          const x = (i * 67 + 29) % W; const y = (i * 93 + 22) % H;
+          ctx.beginPath(); ctx.arc(x, y, i % 3 === 0 ? 3.5 : 2, 0, Math.PI * 2); ctx.fill();
+        }
+        ctx.globalAlpha = 1;
+        ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+        ctx.fillStyle = theme.ink; ctx.font = '800 22px system-ui, sans-serif';
+        ctx.fillText('A LITTLE MOMENT', W / 2, 42);
+        ctx.font = '500 12px system-ui, sans-serif'; ctx.globalAlpha = .8;
+        ctx.fillText(new Date().toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' }), W / 2, 72); ctx.globalAlpha = 1;
+        const images = await Promise.all(shots.map((shot) => loadImage(shot.data)));
+        for (let i = 0; i < images.length; i++) {
+          const x = pad; const y = top + i * (photoH + gap);
+          ctx.save(); roundedRect(ctx, x, y, photoW, photoH, 7); ctx.clip(); drawCover(ctx, images[i], x, y, photoW, photoH); ctx.restore();
+          ctx.strokeStyle = '#ffffff'; ctx.lineWidth = 6; roundedRect(ctx, x, y, photoW, photoH, 7); ctx.stroke();
+          if (state.stickers !== 'none') {
+            const mark = STICKERS[state.stickers].marks[i % STICKERS[state.stickers].marks.length];
+            ctx.save(); ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.font = 'bold 37px system-ui, sans-serif';
+            ctx.shadowColor = '#3b294455'; ctx.shadowBlur = 5; ctx.fillStyle = '#fff';
+            ctx.fillText(mark, x + photoW - 30, y + 32);
+            if (i === 0 || i === images.length - 1) ctx.fillText(STICKERS[state.stickers].marks[(i + 1) % STICKERS[state.stickers].marks.length], x + 28, y + photoH - 27);
+            ctx.restore();
+          }
+        }
+        ctx.fillStyle = theme.ink; ctx.font = '700 14px system-ui, sans-serif'; ctx.textAlign = 'center';
+        const decoration = state.stickers === 'none' ? 'made with love' : STICKERS[state.stickers].marks.join('  ');
+        ctx.fillText(decoration, W / 2, H - 53);
+        ctx.globalAlpha = .72; ctx.font = '500 11px system-ui, sans-serif'; ctx.fillText('flash friend  ·  keep this one', W / 2, H - 28); ctx.globalAlpha = 1;
+        return canvas.toDataURL('image/jpeg', .94);
+      }
+      async function refreshGeneratedStrip() {
+        if (state.capturing || state.shots.length !== state.frames) return;
+        const renderId = ++state.renderId;
+        ui.download.disabled = true;
+        try {
+          const data = await createStrip(state.shots);
+          if (renderId !== state.renderId || state.capturing || state.shots.length !== state.frames) return;
+          state.stripData = data;
+          ui.download.disabled = false;
+        } catch (_) {
+          ui.download.disabled = !state.stripData;
+        }
+      }
+      async function captureStrip() {
+        if (!state.stream || state.capturing) return;
+        state.capturing = true;
+        state.shots = [];
+        ui.download.disabled = true;
+        ui.retake.disabled = true;
+        ui.capture.disabled = true;
+        ui.flip.disabled = true;
+        $$('.filter-btn, .theme-btn, .frame-choice, .sticker-choice, .timer-chip').forEach((button) => { button.disabled = true; });
+        ui.captureLabel.textContent = 'Get ready…';
+        setCameraState('busy', 'Getting your shots');
+        ui.message.classList.remove('is-visible');
+        try {
+          for (let i = 0; i < state.frames; i++) {
+            ui.progress.textContent = `Photo ${i + 1} of ${state.frames}`;
+            ui.progress.classList.add('is-visible');
+            await runCountdown();
+            const data = captureFrame();
+            if (!data) throw new Error('The camera preview is not ready yet.');
+            state.shots.push({ data, time: new Date() });
+            addGalleryShot(state.shots[state.shots.length - 1], state.shots.length);
+            updateStripPreview();
+            if (i < state.frames - 1) await wait(650);
+          }
+          state.stripData = await createStrip(state.shots);
+          ui.download.disabled = false;
+          ui.retake.disabled = false;
+          showToast('Your photo strip is ready. Looking good!');
+        } catch (error) {
+          ui.message.textContent = error?.message || 'Something went wrong while capturing. Please try again.';
+          ui.message.classList.add('is-visible');
+          ui.retake.disabled = false;
+        } finally {
+          state.capturing = false;
+          ui.capture.disabled = !state.stream;
+          ui.flip.disabled = !state.stream || ui.flip.title === 'No second camera found';
+          $$('.filter-btn, .theme-btn, .frame-choice, .sticker-choice, .timer-chip').forEach((button) => { button.disabled = false; });
+          ui.captureLabel.textContent = 'Take my strip';
+          ui.progress.classList.remove('is-visible');
+          ui.overlay.classList.remove('is-visible');
+          setCameraState('live', 'Camera ready');
+          updateStripPreview();
+          if (ui.flip.disabled && state.mobile) refreshFlipAvailability();
+        }
+      }
+      function addGalleryShot(shot, indexInStrip) {
+        ui.galleryEmpty.style.display = 'none';
+        ui.galleryList.hidden = false;
+        const index = ++state.galleryCount;
+        const button = document.createElement('button'); button.className = 'gallery-item'; button.type = 'button'; button.title = 'Open snapshot';
+        const img = document.createElement('img'); img.src = shot.data; img.alt = `Snapshot ${index}`;
+        const badge = document.createElement('span'); badge.className = 'gallery-index'; badge.textContent = `#${index}`;
+        button.append(img, badge);
+        button.addEventListener('click', () => openShot(shot, index));
+        ui.galleryList.prepend(button);
+        while (ui.galleryList.children.length > 24) ui.galleryList.lastElementChild.remove();
+        ui.galleryCount.textContent = `${index} ${index === 1 ? 'shot' : 'shots'}`;
+      }
+      function openShot(shot, index) {
+        ui.modalImage.src = shot.data;
+        ui.modalTitle.textContent = `A little moment · #${index}`;
+        ui.modalTime.textContent = shot.time.toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' });
+        ui.downloadSingle.href = shot.data;
+        ui.downloadSingle.download = `flash-friend-photo-${index}.jpg`;
+        ui.modal.classList.add('is-visible');
+        $('#modalClose').focus();
+      }
+      function closeModal() { ui.modal.classList.remove('is-visible'); }
+      function downloadData(data, filename) {
+        if (!data) return;
+        const a = document.createElement('a'); a.href = data; a.download = filename; document.body.appendChild(a); a.click(); a.remove();
+      }
+      function showToast(message) {
+        ui.toastText.textContent = message;
+        ui.toast.classList.add('is-visible');
+        clearTimeout(state.toastTimer);
+        state.toastTimer = setTimeout(() => ui.toast.classList.remove('is-visible'), 2800);
+      }
+
+      renderOptions();
+      ui.start.addEventListener('click', () => requestCamera(state.facing));
+      ui.capture.addEventListener('click', captureStrip);
+      ui.filterGrid.addEventListener('click', (e) => { const button = e.target.closest('[data-filter]'); if (!button) return; state.filter = button.dataset.filter; updateFilter(); });
+      ui.themeRow.addEventListener('click', (e) => { const button = e.target.closest('[data-theme]'); if (!button) return; state.theme = button.dataset.theme; updateStripPreview(); refreshGeneratedStrip(); });
+      $$('.frame-choice').forEach((button) => button.addEventListener('click', () => { if (state.capturing) return; state.frames = Number(button.dataset.frames); state.shots = []; state.renderId++; state.stripData = null; ui.download.disabled = true; ui.retake.disabled = true; updateStripPreview(); showToast(`${state.frames}-photo strips. Got it!`); }));
+      $$('.sticker-choice').forEach((button) => button.addEventListener('click', () => { if (state.capturing) return; state.stickers = button.dataset.stickers; updateStripPreview(); refreshGeneratedStrip(); }));
+      $$('.timer-chip').forEach((button) => button.addEventListener('click', () => { if (state.capturing) return; state.timer = Number(button.dataset.timer); $$('.timer-chip').forEach((b) => b.setAttribute('aria-pressed', String(b === button))); }));
+      ui.download.addEventListener('click', () => { if (state.stripData) downloadData(state.stripData, `flash-friend-strip-${state.frames}-shots.jpg`); });
+      ui.retake.addEventListener('click', () => { if (state.capturing) return; state.shots = []; state.renderId++; state.stripData = null; ui.download.disabled = true; ui.retake.disabled = true; updateStripPreview(); showToast('Fresh strip, fresh memories.'); });
+      ui.flip.addEventListener('click', async () => {
+        if (!state.stream || state.capturing) return;
+        ui.flip.disabled = true;
+        if (state.mobile) {
+          const nextFacing = state.facing === 'user' ? 'environment' : 'user';
+          await requestCamera(nextFacing);
+        } else {
+          try {
+            const currentId = state.stream.getVideoTracks()[0]?.getSettings().deviceId;
+            const devices = (await navigator.mediaDevices.enumerateDevices()).filter((d) => d.kind === 'videoinput');
+            const index = devices.findIndex((d) => d.deviceId === currentId);
+            const next = devices[(index + 1 + devices.length) % devices.length];
+            if (next && devices.length > 1) await requestCamera(state.facing, next.deviceId);
+            else showToast('There is only one camera on this device.');
+          } catch (_) { showToast('Could not find another camera.'); }
+        }
+        await refreshFlipAvailability();
+      });
+      ui.downloadSingle.addEventListener('click', () => showToast('Snapshot downloaded.'));
+      $('#shareBooth').addEventListener('click', async () => {
+        if (location.protocol !== 'https:') { showToast('Publish this page on HTTPS before sharing the booth link.'); return; }
+        try {
+          if (navigator.share) await navigator.share({ title: document.title, text: 'Make a little magic with Flash Friend.', url: location.href });
+          else { await navigator.clipboard.writeText(location.href); showToast('Booth link copied. Send it to a friend!'); }
+        } catch (error) {
+          if (error?.name !== 'AbortError') showToast('Copy the HTTPS address from your browser to share this booth.');
+        }
+      });
+      $('#modalClose').addEventListener('click', closeModal);
+      ui.modal.addEventListener('click', (e) => { if (e.target === ui.modal) closeModal(); });
+      document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeModal(); });
+      window.addEventListener('pagehide', () => { if (state.stream) state.stream.getTracks().forEach((t) => t.stop()); });
+      if (!window.isSecureContext || !navigator.mediaDevices?.getUserMedia) {
+        ui.emptyCopy.textContent = 'Camera access needs HTTPS or localhost. Open this page from a secure website to start your live preview.';
+      }
+    })();
+  </script>
+</body>
+</html>
+
