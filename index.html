@@ -574,8 +574,13 @@
         ctx.imageSmoothingEnabled = true;
         ctx.imageSmoothingQuality = 'high';
         ctx.filter = selectedFilter().css;
-        // Capture from the unstyled camera element so preview mirroring cannot reach downloads.
+        // Normalize camera frames in the saved pixels. Some mobile camera streams arrive
+        // horizontally mirrored even though this source video has no CSS transform.
+        ctx.save();
+        ctx.translate(canvas.width, 0);
+        ctx.scale(-1, 1);
         ctx.drawImage(source, sx, sy, sw, sh, 0, 0, canvas.width, canvas.height);
+        ctx.restore();
         return canvas.toDataURL('image/jpeg', .97);
       }
       async function runCountdown() {
