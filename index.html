@@ -428,7 +428,7 @@
       const ui = {
         video: $('#video'), viewfinder: $('#viewfinder'), videoTint: $('#videoTint'), empty: $('#emptyCamera'), emptyTitle: $('#emptyTitle'), emptyCopy: $('#emptyCopy'), start: $('#startCamera'), state: $('#cameraState'), stateText: $('#cameraStateText'), message: $('#cameraMessage'), capture: $('#captureButton'), captureLabel: $('#captureLabel'), flip: $('#flipCamera'), overlay: $('#countdownOverlay'), number: $('#countdownNumber'), progress: $('#shotProgress'), filterGrid: $('#filterGrid'), themeRow: $('.theme-row'), stickerChoices: $('.sticker-choices'), designChoices: $('.strip-design-choices'), preview: $('#stripPreview'), stripState: $('#stripState'), stickerLine: $('#stickerLine'), download: $('#downloadStrip'), retake: $('#retakeButton'), galleryEmpty: $('#galleryEmpty'), galleryList: $('#galleryList'), galleryCount: $('#galleryCount'), toast: $('#toast'), toastText: $('#toastText'), modal: $('#modal'), modalImage: $('#modalImage'), modalTitle: $('#modalTitle'), modalTime: $('#modalTime'), downloadSingle: $('#downloadSingle')
       };
-      const state = { stream: null, filter: 'natural', frames: 3, theme: 'bubblegum', stickers: 'sweet', stripStyle: 'confetti', timer: 3, shots: [], galleryCount: 0, stripData: null, renderId: 0, capturing: false, facing: 'user', mobile: matchMedia('(pointer: coarse)').matches || /Android|iPhone|iPad|iPod/i.test(navigator.userAgent), toastTimer: null };
+      const state = { stream: null, captureVideo: null, filter: 'natural', frames: 3, theme: 'bubblegum', stickers: 'sweet', stripStyle: 'confetti', timer: 3, shots: [], galleryCount: 0, stripData: null, renderId: 0, capturing: false, facing: 'user', mobile: matchMedia('(pointer: coarse)').matches || /Android|iPhone|iPad|iPod/i.test(navigator.userAgent), toastTimer: null };
 
       function renderOptions() {
         ui.filterGrid.innerHTML = FILTERS.map((f) => `<button class="filter-btn" data-filter="${f.id}" aria-pressed="${f.id === state.filter}" aria-label="${f.name} filter"><span class="filter-swatch" style="background:${f.swatch};filter:${f.css}"></span><span>${f.name}</span></button>`).join('');
@@ -509,6 +509,11 @@
           const nextStream = await navigator.mediaDevices.getUserMedia({ video: videoConstraints, audio: false });
           const oldStream = state.stream;
           state.stream = nextStream;
+          const rawVideo = document.createElement('video');
+          rawVideo.muted = true;
+          rawVideo.playsInline = true;
+          rawVideo.srcObject = nextStream;
+          state.captureVideo = rawVideo;
           const videoTrack = nextStream.getVideoTracks()[0];
           const actualFacing = videoTrack?.getSettings().facingMode;
           state.facing = actualFacing === 'environment' || actualFacing === 'user' ? actualFacing : facing;
@@ -530,7 +535,7 @@
           if (oldStream && oldStream !== nextStream) oldStream.getTracks().forEach((t) => t.stop());
           await refreshFlipAvailability();
           updateFilter();
-          await ui.video.play().catch(() => {});
+          await Promise.all([ui.video.play().catch(() => {}), rawVideo.play().catch(() => {})]);
           return true;
         } catch (error) {
           ui.start.disabled = false;
@@ -549,8 +554,9 @@
       }
       function wait(ms) { return new Promise((resolve) => setTimeout(resolve, ms)); }
       function captureFrame() {
-        const vw = ui.video.videoWidth;
-        const vh = ui.video.videoHeight;
+        const source = state.captureVideo?.videoWidth ? state.captureVideo : ui.video;
+        const vw = source.videoWidth;
+        const vh = source.videoHeight;
         if (!vw || !vh) return null;
         const aspect = 4 / 5;
         let sx = 0, sy = 0, sw = vw, sh = vh;
@@ -568,12 +574,8 @@
         ctx.imageSmoothingEnabled = true;
         ctx.imageSmoothingQuality = 'high';
         ctx.filter = selectedFilter().css;
-        // Correct the reflected rear-camera feed in saved photos without changing the live preview.
-        if (state.facing === 'environment') {
-          ctx.translate(canvas.width, 0);
-          ctx.scale(-1, 1);
-        }
-        ctx.drawImage(ui.video, sx, sy, sw, sh, 0, 0, canvas.width, canvas.height);
+        // Capture from the unstyled camera element so preview mirroring cannot reach downloads.
+        ctx.drawImage(source, sx, sy, sw, sh, 0, 0, canvas.width, canvas.height);
         return canvas.toDataURL('image/jpeg', .97);
       }
       async function runCountdown() {
